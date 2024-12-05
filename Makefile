@@ -1,4 +1,4 @@
-.PHONY: all init format lint build build_frontend install_frontend run_frontend run_backend dev help tests coverage clean_python_cache clean_npm_cache clean_all
+.PHONY: all init format_backend format_frontend format lint build build_frontend install_frontend run_frontend run_backend dev help tests coverage clean_python_cache clean_npm_cache clean_all
 
 # Configurations
 VERSION=$(shell grep "^version" pyproject.toml | sed 's/.*\"\(.*\)\"$$/\1/')
@@ -179,10 +179,14 @@ fix_codespell: ## run codespell to fix spelling errors
 	@poetry install --with spelling
 	poetry run codespell --toml pyproject.toml --write
 
-format: ## run code formatters
+format_backend: ## backend code formatters
 	@uv run ruff check . --fix
 	@uv run ruff format . --config pyproject.toml
+
+format_frontend: ## frontend code formatters
 	@cd src/frontend && npm run format
+
+format: format_backend format_frontend ## run code formatters
 
 unsafe_fix:
 	@uv run ruff check . --fix --unsafe-fixes
