@@ -27,6 +27,11 @@ all: help
 # UTILITIES
 ######################
 
+# Some directories may be mount points as in devcontainer, so we need to clear their
+# contents rather than remove the entire directory.
+# See https://code.visualstudio.com/remote/advancedcontainers/improve-performance
+CLEAR_DIRS = $(foreach dir,$1,@mkdir -p $(dir) && rm -rf $(dir)/* $(dir)/.[!.]*)
+
 # increment the patch version of the current package
 patch: ## bump the version in langflow and langflow-base
 	@echo 'Patching the version'
@@ -68,8 +73,8 @@ install_frontend: ## install the frontend dependencies
 build_frontend: ## build the frontend static files
 	@echo 'Building frontend static files'
 	@cd src/frontend && CI='' npm run build > /dev/null 2>&1
-	@rm -rf src/backend/base/langflow/frontend
-	@cp -r src/frontend/build src/backend/base/langflow/frontend
+	$(call CLEAR_DIRS,src/backend/base/langflow/frontend)
+	@cp -r src/frontend/build/. src/backend/base/langflow/frontend
 
 init: check_tools clean_python_cache clean_npm_cache ## initialize the project
 	@make install_backend
@@ -94,7 +99,8 @@ clean_python_cache:
 clean_npm_cache:
 	@echo "Cleaning npm cache..."
 	cd src/frontend && npm cache clean --force
-	rm -rf src/frontend/node_modules src/frontend/build src/backend/base/langflow/frontend src/frontend/package-lock.json
+	$(call CLEAR_DIRS,src/frontend/node_modules src/frontend/build src/backend/base/langflow/frontend)
+	rm -f src/frontend/package-lock.json
 	@echo "$(GREEN)NPM cache and frontend directories cleaned.$(NC)"
 
 clean_all: clean_python_cache clean_npm_cache # clean all caches and temporary directories
@@ -198,7 +204,7 @@ install_frontendci:
 	@cd src/frontend && npm ci > /dev/null 2>&1
 
 install_frontendc:
-	@cd src/frontend && rm -rf node_modules package-lock.json && npm install > /dev/null 2>&1
+	@cd src/frontend && $(call CLEAR_DIRS,node_modules) && rm -f package-lock.json && npm install > /dev/null 2>&1
 
 run_frontend: ## run the frontend
 	@-kill -9 `lsof -t -i:3000`
@@ -276,16 +282,14 @@ else
 endif
 
 build_and_run: setup_env ## build the project and run it
-	rm -rf dist
-	rm -rf src/backend/base/dist
+	$(call CLEAR_DIRS,dist src/backend/base/dist)
 	make build
 	uv run pip install dist/*.tar.gz
 	uv run langflow run
 
 build_and_install: ## build the project and install it
 	@echo 'Removing dist folder'
-	rm -rf dist
-	rm -rf src/backend/base/dist
+	$(call CLEAR_DIRS,dist src/backend/base/dist)
 	make build && uv run pip install dist/*.whl && pip install src/backend/base/dist/*.whl --force-reinstall
 
 build: setup_env ## build the frontend static files and package the project
@@ -304,7 +308,7 @@ endif
 
 build_langflow_base:
 	cd src/backend/base && uv build $(args)
-	rm -rf src/backend/base/langflow/frontend
+	$(call CLEAR_DIRS,src/backend/base/langflow/frontend)
 
 build_langflow_backup:
 	uv lock && uv build

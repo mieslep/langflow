@@ -18,16 +18,18 @@ RUN apt-get update && apt-get install -y \
     vim \
     less \
     net-tools \
+    sudo \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create the vscode user and group with the expected UID and GID (1000)
-RUN groupadd -g 1000 vscode && \
-    useradd -m -u 1000 -g 1000 -s /bin/zsh vscode
+RUN groupadd -g 1000 langflow && \
+    useradd -m -u 1000 -g 1000 -s /bin/zsh langflow && \
+    echo "langflow ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Set default shell to Zsh
 SHELL ["/bin/zsh", "-c"]
 
-RUN echo 'export PS1="%~ %# "' >> /home/vscode/.zshrc
+RUN echo 'export PS1="%~ %# "' >> /home/langflow/.zshrc
 
 # Set the default user
-USER vscode
+USER langflow
