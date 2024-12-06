@@ -6,7 +6,15 @@ These instructions will walk you through the process of running a Langflow demo 
 
 ### Create a Codespace in GitHub
 
-To setup the demo, simply navigate to the Langflow repo, click the "+" button, and select "Create new Codespace". This will automatically create a new codespace in your browser, which you can use for the demo.
+To setup the demo:
+
+1. Navigate to the Langflow repo
+2. On the "Code <>" button:
+   1. Select the "Codespaces" tab
+   2. Click the 3 dots
+   3. Select "New with options"  
+3. Choose the "Langflow Demo Container" (and other options as you wish)
+4. Click "Create Codespace"
 
 ### Wait for everything to install
 
