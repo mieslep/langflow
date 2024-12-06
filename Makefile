@@ -202,7 +202,7 @@ install_frontendc:
 
 run_frontend: ## run the frontend
 	@-kill -9 `lsof -t -i:3000`
-	@cd src/frontend && npm start
+	@cd src/frontend && npm start $(if $(FRONTEND_START_FLAGS),-- $(FRONTEND_START_FLAGS))
 
 tests_frontend: ## run frontend tests
 ifeq ($(UI), true)
