@@ -181,8 +181,7 @@ When you are ready to commit, and before you commit, you should consider the fol
 
 * `make lint`
 * `make format_backend` and `make format_frontend` will run code formatters on their respective codebases
-* `make tests` runs tests on the backend, while `make tests_frontend` runs them on the frontend
-  * You can run a subset of backend tests with `make unit_tests`, `make integration_tests`, and `make coverage`.
+* `make unit_tests` runs the (backend) unit tests (see "Quirks" below for more about testing). 
 
 Once these changes are ready, it is helpful to rebase your changes on top of `upstream`'s `main` branch, to ensure you have the latest code version!
 
@@ -192,8 +191,21 @@ Once you are happy your changes are complete, commit them and push the changes t
 
 A reminder that if you have pre-commit hooks enabled, you need to run the `git` command as `uv run git` to activate the necessary Python environment!
 
----
+## Some Quirks!
 
-**TODO**: LANGFLOW_LOG_LEVEL, LANGFLOW_LOG_FILE, LANGFLOW_CONFIG_DIR, LANGFLOW_SAVE_DB_IN_CONFIG_DIR ?
+You may observe some quirky things: 
 
-**TODO**: Tips about managing the browser cache? i.e. if I make a change to a "base" or other component, do I need to reload the browser to ensure the components are up-to-date?
+### Testing
+
+* Backend test `src/backend/tests/unit/test_database.py` can fail when running with `make tests` but passes when running manually
+  * You can validate this by running the test cases sequentially: `uv run pytest src/backend/tests/unit/test_database.py`
+* There are some other test targets: `integration_tests`, `coverage`, `tests_frontend` but these require additional setup not covered in this document.
+
+### Files That Change
+
+There are some files that change without you having made changes:
+
+* Files in `src/backend/base/langflow/initial_setup/starter_projects` modify after `langflow run`; these are formatting changes. Feel free to commit (or ignore) them.
+* `uv.lock` and `src/frontend/package-lock.json` files can be modified by `make` targets; changes should not be committed by individual contributors.
+   * You can exclude these from consideration in git: `git update-index --assume-unchanged uv.lock src/frontend/package-lock.json`
+   * You can re-include these from consideration in git: `git update-index --no-assume-unchanged uv.lock src/frontend/package-lock.json`
