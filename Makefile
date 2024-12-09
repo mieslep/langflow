@@ -28,9 +28,10 @@ all: help
 ######################
 
 # Some directories may be mount points as in devcontainer, so we need to clear their
-# contents rather than remove the entire directory.
+# contents rather than remove the entire directory. But we must also be mindful that 
+# we are not running in a devcontainer, so need to ensure the directories exist.
 # See https://code.visualstudio.com/remote/advancedcontainers/improve-performance
-CLEAR_DIRS = $(foreach dir,$1,@mkdir -p $(dir) && rm -rf $(dir)/* $(dir)/.[!.]*)
+CLEAR_DIRS = $(foreach dir,$1,$(shell mkdir -p $(dir) && find $(dir) -mindepth 1 -delete))
 
 # increment the patch version of the current package
 patch: ## bump the version in langflow and langflow-base
